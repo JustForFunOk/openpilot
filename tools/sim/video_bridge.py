@@ -7,6 +7,7 @@ import os
 from multiprocessing import Process, Queue
 from typing import Any
 
+import cv2
 import numpy as np
 import pyopencl as cl
 import pyopencl.array as cl_array
@@ -82,9 +83,9 @@ class Camerad:
     self.Wdiv4 = W // 4 if (W % 4 == 0) else (W + (4 - W % 4)) // 4
     self.Hdiv4 = H // 4 if (H % 4 == 0) else (H + (4 - H % 4)) // 4
 
-  def cam_callback(self, image):
-    img = np.frombuffer(image.raw_data, dtype=np.dtype("uint8"))
-    img = np.reshape(img, (H, W, 4))
+  def publish_image(self, image):
+    img = np.frombuffer(image, dtype=np.dtype("uint8"))
+    img = np.reshape(img, (H, W, 3))
     img = img[:, :, [0, 1, 2]].copy()
 
     # convert RGB frame to YUV
@@ -101,7 +102,7 @@ class Camerad:
 
     dat = messaging.new_message('roadCameraState')
     dat.roadCameraState = {
-      "frameId": image.frame,
+      "frameId": self.frame_id,
       "transform": [1.0, 0.0, 0.0,
                     0.0, 1.0, 0.0,
                     0.0, 0.0, 1.0]
@@ -213,6 +214,18 @@ def can_function_runner(vs: VehicleState, exit_event: threading.Event):
     time.sleep(0.01)
     i += 1
 
+def video_replayer(exit_event: threading.Event):
+  camerad = Camerad()
+  cap = cv2.VideoCapture('./1.mp4')
+  while(cap.isOpened()):
+    ret, frame = cap.read()
+    resized_img = cv2.resize(frame, (W, H), interpolation = cv2.INTER_AREA)
+    # cv2.imshow('frame',frame)
+    # print(resized_img.shape)
+    camerad.publish_image(resized_img)
+    time.sleep(0.1)
+  cap.release()
+  # cv2.destroyAllWindows()
 
 def bridge(q):
   # setup FAKE
@@ -224,6 +237,7 @@ def bridge(q):
   # launch fake car threads
   threads = []
   exit_event = threading.Event()
+  threads.append(threading.Thread(target=video_replayer, args=(exit_event,)))
   threads.append(threading.Thread(target=panda_state_function, args=(exit_event,)))
   threads.append(threading.Thread(target=peripheral_state_function, args=(exit_event,)))
   threads.append(threading.Thread(target=fake_driver_monitoring, args=(exit_event,)))

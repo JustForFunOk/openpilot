@@ -37,7 +37,7 @@ docker run --net=host\
   -w "$OPENPILOT_DIR/tools/sim" \
   $EXTRA_ARGS \
   ghcr.io/commaai/openpilot-sim:latest \
-  /bin/bash -c "./bridge.py $*" \
+  /bin/bash -c "./video_bridge.py $*" \
   "
 
 sleep 0.1 # sleep 0.1 second, wait for container is running
