@@ -405,7 +405,7 @@ if __name__ == "__main__":
   set_params_enabled()
 
   msg = messaging.new_message('liveCalibration')
-  msg.liveCalibration.validBlocks = 20
+  msg.liveCalibration.validBlocks = 0
   msg.liveCalibration.rpyCalib = [0.0, 0.0, 0.0]
   Params().put("CalibrationParams", msg.to_bytes())
 
