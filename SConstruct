@@ -174,6 +174,8 @@ if arch != "Darwin":
 cflags += ["-DSWAGLOG"]
 cxxflags += ["-DSWAGLOG"]
 
+#cpppath += ['/usr/include/opencv4']
+
 env = Environment(
   ENV=lenv,
   CCFLAGS=[
@@ -438,3 +440,5 @@ if GetOption('test'):
 external_sconscript = GetOption('external_sconscript')
 if external_sconscript:
   SConscript([external_sconscript])
+
+SConscript('tools/truck_sim/cap/SConscript')

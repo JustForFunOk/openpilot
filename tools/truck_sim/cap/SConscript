@@ -1,0 +1,11 @@
+Import('env', 'cereal', 'messaging')
+
+env.Program('nvfbc_cap', ['nvfbc_cap.cc'], LIBS=[cereal, messaging, 'zmq', 'capnp', 'kj', 'dl', 'X11'])
+
+# env.CPPPATH += [
+#       "/usr/include/opencv4",
+#     ]
+env.Program('x11_cap', ['x11_cap.cc'],
+        LIBS=[cereal, messaging, 'zmq', 'capnp', 'kj', 'dl', 'X11',
+                'opencv_core', 'opencv_highgui', 'opencv_imgproc', 'opencv_videoio'])
+
